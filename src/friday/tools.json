@@ -1,0 +1,202 @@
+[
+  {
+    "name": "use_app",
+    "description": "Is the user asking to open, launch, or switch to an application?",
+    "action_class": "navigate",
+    "category": "app",
+    "arguments": {
+      "app": {
+        "type": "installed_app"
+      }
+    },
+    "script": "use_app.applescript"
+  },
+  {
+    "name": "speak_time",
+    "description": "Is the user asking what the time is?",
+    "action_class": "read",
+    "category": "info",
+    "arguments": {},
+    "script": null
+  },
+  {
+    "name": "open_url",
+    "description": "Is the user asking to open a saved website such as email, YouTube, GitHub, or Wikipedia?",
+    "action_class": "navigate",
+    "category": "web",
+    "arguments": {
+      "url": {
+        "type": "url_shortcut"
+      },
+      "browser": {
+        "type": "url_shortcut"
+      }
+    },
+    "script": "open_url.applescript"
+  },
+  {
+    "name": "set_volume",
+    "description": "Is the user asking to change the volume?",
+    "action_class": "mutate_local",
+    "category": "system",
+    "arguments": {
+      "level": {
+        "type": "enum",
+        "values": [
+          "mute",
+          "low",
+          "medium",
+          "high",
+          "max"
+        ]
+      }
+    },
+    "script": "set_volume.applescript"
+  },
+  {
+    "name": "take_screenshot",
+    "description": "Is the user asking to take a screenshot?",
+    "action_class": "read",
+    "category": "system",
+    "arguments": {},
+    "binary": "screencapture"
+  },
+  {
+    "name": "toggle_dark_mode",
+    "description": "Is the user asking to switch between light and dark mode?",
+    "action_class": "mutate_local",
+    "category": "system",
+    "arguments": {},
+    "script": "toggle_dark_mode.applescript"
+  },
+  {
+    "name": "quit_app",
+    "description": "Is the user asking to quit or close an application?",
+    "action_class": "mutate_local",
+    "category": "app",
+    "arguments": {
+      "app": {
+        "type": "installed_app"
+      }
+    },
+    "script": "quit_app.applescript"
+  },
+  {
+    "name": "lock_screen",
+    "description": "Is the user asking to lock the screen?",
+    "action_class": "navigate",
+    "category": "system",
+    "arguments": {},
+    "script": "lock_screen.applescript"
+  },
+  {
+    "name": "browser_snapshot",
+    "description": "Is the user asking to list the controls on the current web page?",
+    "action_class": "read",
+    "category": "page",
+    "arguments": {},
+    "script": null
+  },
+  {
+    "name": "browser_read",
+    "description": "Is the user asking to read the text of a numbered control on the current web page?",
+    "action_class": "read",
+    "category": "page",
+    "arguments": {
+      "control": {
+        "type": "control_index"
+      }
+    },
+    "script": null
+  },
+  {
+    "name": "browser_click",
+    "description": "Is the user asking to click a numbered control on the current web page?",
+    "action_class": "navigate",
+    "category": "page",
+    "arguments": {
+      "control": {
+        "type": "control_index"
+      }
+    },
+    "script": null
+  },
+  {
+    "name": "browser_submit",
+    "description": "Is the user asking to submit a form or send a message through a numbered control on the current web page?",
+    "action_class": "mutate_remote",
+    "category": "page",
+    "arguments": {
+      "control": {
+        "type": "control_index"
+      }
+    },
+    "script": null
+  },
+  {
+    "name": "browser_search",
+    "description": "Is the user asking to search Google, GitHub, YouTube, Wikipedia, or Stack Overflow for something?",
+    "action_class": "read",
+    "category": "web",
+    "arguments": {
+      "site": {
+        "type": "enum",
+        "values": [
+          "google",
+          "github",
+          "youtube",
+          "wikipedia",
+          "stackoverflow",
+          "current",
+          "current_new_tab"
+        ]
+      },
+      "query": {
+        "type": "literal_span"
+      }
+    },
+    "script": null
+  },
+  {
+    "name": "run_skill",
+    "description": "Is the user asking for a skill \u2014 a fixed multi-step procedure such as finding and opening a file, composing a mail with an attachment, creating a calendar event, or taking a screenshot?",
+    "action_class": "mutate_local",
+    "category": "skills",
+    "arguments": {
+      "skill_id": {
+        "type": "skill_ref"
+      },
+      "slots": {
+        "type": "skill_slots"
+      }
+    },
+    "script": null
+  },
+  {
+    "name": "navigate_tab",
+    "description": "Is the user asking to open a new tab in a browser?",
+    "action_class": "navigate",
+    "category": "web",
+    "arguments": {
+      "browser": {
+        "type": "enum",
+        "values": [
+          "chrome",
+          "brave",
+          "brew",
+          "safari",
+          "default"
+        ]
+      }
+    },
+    "script": null
+  },
+  {
+    "name": "close_tab",
+    "description": "Is the user asking to close the current browser tab?",
+    "action_class": "destructive",
+    "category": "page",
+    "arguments": {},
+    "script": null
+  }
+]
