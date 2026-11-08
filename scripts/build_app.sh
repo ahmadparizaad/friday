@@ -67,10 +67,7 @@ step "Setting up Python virtual environment..."
 mkdir -p "$(dirname "$VENV_PATH")"
 
 if [ ! -f "$VENV_PATH/bin/python" ]; then
-    if [ -d "$HOME/Library/Application Support/macbrow/venv" ]; then
-        step "Cloning existing venv..."
-        cp -R "$HOME/Library/Application Support/macbrow/venv" "$VENV_PATH"
-    elif command -v uv >/dev/null 2>&1; then
+    if command -v uv >/dev/null 2>&1; then
         uv venv "$VENV_PATH" --python 3.12
         uv pip install --python "$VENV_PATH/bin/python" -e .
     else
@@ -103,11 +100,7 @@ step "Setting up code signing identity..."
 
 IDENTITY="friday-dev"
 if ! security find-identity -v -p codesigning 2>/dev/null | grep -q "\"$IDENTITY\""; then
-    if security find-identity -v -p codesigning 2>/dev/null | grep -q "\"macbrow-dev\""; then
-        IDENTITY="macbrow-dev"
-    else
-        IDENTITY="-"
-    fi
+    IDENTITY="-"
 fi
 
 step "Signing bundle with identity: $IDENTITY..."

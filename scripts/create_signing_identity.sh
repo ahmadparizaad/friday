@@ -15,12 +15,6 @@ if security find-identity -v -p codesigning "$KEYCHAIN" 2>/dev/null | grep -q "\
     exit 0
 fi
 
-# Fallback: check if macbrow-dev already exists
-if security find-identity -v -p codesigning "$KEYCHAIN" 2>/dev/null | grep -q "\"macbrow-dev\""; then
-    echo "Reusing existing trusted identity 'macbrow-dev'"
-    exit 0
-fi
-
 echo "Creating self-signed code-signing certificate '$IDENTITY_NAME'..."
 
 WORKDIR="$(mktemp -d)"
