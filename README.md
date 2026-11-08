@@ -1,14 +1,14 @@
 # Friday
 
 A fully on-device macOS voice computer-use agent. Clean-room design, inspired by
-[macbrow](https://github.com/timpratim/macbrow) (MIT) — architectural pattern
+[macbrow](https://github.com/timpratim/macbrow) (MIT): architectural pattern
 only, no code reused.
 
 **Status: 16 tools across apps, system, browser and skills; terminal interface
 plus a voice loop that takes transcripts from a separate UI app.**
 
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — the design and its reasoning
-- [`docs/M1-MEASUREMENTS.md`](docs/M1-MEASUREMENTS.md) — what the model actually
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): the design and its reasoning
+- [`docs/M1-MEASUREMENTS.md`](docs/M1-MEASUREMENTS.md): what the model actually
   does on this machine, including the parts that contradicted the design
 
 ---
@@ -23,14 +23,14 @@ These are **not** the same guarantee, and conflating them would be misleading:
 
 2. **The agent can still take network-reaching actions.** Local inference does
    not provide this guarantee. Once the agent decides to act, it acts on your
-   real machine — and from M2 it drives a browser. "The model is local" is not
+   real machine, and from M2 it drives a browser. "The model is local" is not
    the same as "it cannot reach the network."
 
 ## How it stays safe
 
 Nothing in the trusted path generates text. The decision model
 ([laya-mlx](https://github.com/mizorewww/laya-mlx)) emits **zero output
-tokens** — it returns probabilities over a fixed option set. Every tool argument
+tokens**. It returns probabilities over a fixed option set. Every tool argument
 is either a literal span of your speech or a value from a fixed enum.
 
 A malicious webpage or transcript cannot inject an instruction into a component
@@ -43,7 +43,7 @@ keychain, System Settings) always refuse.
 
 **This matters more than it first appears.** Measured routing accuracy is 75%,
 and the model's confidence does *not* separate correct routes from incorrect
-ones. Wrong routes are expected, not exceptional — the floors are what bound
+ones. Wrong routes are expected, not exceptional; the floors are what bound
 the damage.
 
 ## Try it
@@ -66,7 +66,7 @@ uv pip install --python .venv/bin/python -e . pytest pytest-cov
 ```
 
 Autonomy is per-run: `--autonomy strict|cautious|permissive`. `permissive` is
-**not recommended** — at 75% routing accuracy it would auto-run wrong routes.
+**not recommended**: at 75% routing accuracy it would auto-run wrong routes.
 
 ## Tests
 
@@ -92,5 +92,5 @@ verify_chain("~/.local/state/friday-local/audit.jsonl")  # (True, None)
 ```
 
 Editing or reordering a record breaks the chain; a side-car file makes
-truncation detectable too. The agent's own account of what it did is a claim —
+truncation detectable too. The agent's own account of what it did is a claim;
 this log is the evidence.
