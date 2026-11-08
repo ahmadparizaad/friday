@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Friday — On-Device Voice Computer Use Launch Film</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,100..900&family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --bg-canvas: #FAF9F5;
+      --ui-black: #0B0B0C;
+      --accent-copper: #D97757;
+      --accent-cyan: #38bdf8;
+      --accent-green: #34d399;
+      --text-dark: #141413;
+      --font-display: 'Archivo', -apple-system, sans-serif;
+      --font-ui: -apple-system, 'SF Pro Display', 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #121214;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-ui);
+    }
+
+    /* 1440x1440 Master Viewport Container */
+    #viewport-container {
+      width: 1440px;
+      height: 1440px;
+      max-width: 96vmin;
+      max-height: 96vmin;
+      aspect-ratio: 1 / 1;
+      position: relative;
+      background: var(--bg-canvas);
+      overflow: hidden;
+      box-shadow: 0 35px 80px -20px rgba(0, 0, 0, 0.7);
+      border-radius: 6px;
+    }
+
+    /* Screen Studio Virtual Camera Stage */
+    #camera-stage {
+      width: 1440px;
+      height: 1440px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    /* Ambient Warm Vignette */
+    .canvas-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.7) 0%, rgba(245,243,235,0.3) 65%, rgba(230,226,215,0.6) 100%);
+      pointer-events: none;
+    }
+
+    /* SCENE 1: THE OPEN (Wordmark & Dot) */
+    #scene-open {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .brand-container {
+      display: flex;
+      align-items: baseline;
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 168px;
+      line-height: 1;
+      color: var(--text-dark);
+      letter-spacing: -0.045em;
+    }
+
+    .wm-letter {
+      display: inline-block;
+      transform-origin: 50% 80%;
+      will-change: transform, font-variation-settings;
+      font-variation-settings: 'wdth' 125, 'wght' 800;
+    }
+
+    .brand-subtext {
+      margin-top: 26px;
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-copper);
+    }
+
+    /* Central Floating Seed / Dot */
+    #seed-dot {
+      position: absolute;
+      left: 720px;
+      top: 720px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--ui-black);
+      transform: translate(-50%, -50%);
+      display: none;
+      z-index: 100;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    /* SCENE 2: MACBOOK NOTCH & VOICE UI */
+    #notch-housing {
+      position: absolute;
+      top: 0;
+      left: 720px;
+      transform: translateX(-50%);
+      width: 260px;
+      height: 44px;
+      background: var(--ui-black);
+      border-bottom-left-radius: 22px;
+      border-bottom-right-radius: 22px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+      z-index: 500;
+      overflow: hidden;
+      will-change: width, height, border-radius;
+    }
+
+    .notch-camera-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #18181c;
+      border: 1px solid #27272a;
+    }
+
+    .notch-status-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-copper);
+      box-shadow: 0 0 10px var(--accent-copper);
+    }
+
+    /* Voice Waveform Bars inside Notch */
+    .notch-waveform {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 24px;
+    }
+
+    .wave-bar {
+      width: 4px;
+      height: 8px;
+      background: var(--accent-copper);
+      border-radius: 2px;
+      transform-origin: 50% 50%;
+      will-change: transform;
+    }
+
+    /* Voice Transcription Label */
+    #voice-transcript {
+      position: absolute;
+      top: 56px;
+      left: 50%;
+      transform: translateX(-50%) translateY(40px);
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text-dark);
+      letter-spacing: -0.02em;
+      opacity: 0;
+      white-space: nowrap;
+      padding: 8px 24px;
+      border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    /* 3D "fn" Keycap */
+    #fn-keycap {
+      position: absolute;
+      bottom: 120px;
+      left: 720px;
+      transform: translateX(-50%) translateY(300px);
+      width: 110px;
+      height: 110px;
+      background: linear-gradient(180deg, #2b2b2f 0%, #17171a 100%);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 18px 40px rgba(0, 0, 0, 0.45),
+        inset 0 1.5px 0.5px rgba(255, 255, 255, 0.35),
+        inset 0 -3px 0.5px rgba(0, 0, 0, 0.6);
+      border: 1px solid #141416;
+      color: #fafafa;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      z-index: 600;
+      will-change: transform, box-shadow;
+    }
+
+    /* SCENE 3: ZERO-TOKEN DECISION MATRIX & CONFIRM PANEL */
+    #scene-routing-matrix {
+      position: absolute;
+      top: 140px;
+      left: 720px;
+      transform: translateX(-50%);
+      width: 860px;
+      display: none;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      z-index: 400;
+      pointer-events: none;
+    }
+
+    .routing-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+      will-change: transform, opacity, border-color;
+    }
+
+    .routing-card.highlight {
+      background: #0b0b0c;
+      color: #fff;
+      border: 2px solid var(--accent-copper);
+      box-shadow: 0 16px 40px rgba(217, 119, 87, 0.28);
+    }
+
+    .routing-card.blocked {
+      background: #f4f4f5;
+      opacity: 0.65;
+      color: #71717a;
+    }
+
+    /* Notch Confirm Panel */
+    #confirm-panel {
+      position: absolute;
+      top: 44px;
+      left: 720px;
+      transform: translateX(-50%) translateY(-100%);
+      width: 520px;
+      background: rgba(14, 14, 16, 0.94);
+      backdrop-filter: blur(32px) saturate(180%);
+      -webkit-backdrop-filter: blur(32px) saturate(180%);
+      border-bottom-left-radius: 28px;
+      border-bottom-right-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-top: none;
+      padding: 32px 36px;
+      color: #fff;
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5);
+      z-index: 450;
+    }
+
+    .panel-btn-row {
+      display: flex;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .panel-btn {
+      flex: 1;
+      height: 52px;
+      border-radius: 9999px;
+      border: none;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .panel-btn.deny {
+      background: rgba(255, 255, 255, 0.12);
+      color: #d4d4d8;
+    }
+
+    .panel-btn.approve {
+      background: var(--accent-copper);
+      color: #ffffff;
+      box-shadow: 0 8px 24px rgba(217, 119, 87, 0.35);
+    }
+
+    /* SCENE 4: MACOS DESKTOP & SAFARI WINDOW */
+    #scene-desktop {
+      position: absolute;
+      inset: 0;
+      display: none;
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      overflow: hidden;
+    }
+
+    .safari-window {
+      position: absolute;
+      top: 160px;
+      left: 720px;
+      transform: translateX(-50%);
+      width: 1100px;
+      height: 720px;
+      background: #ffffff;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 35px 90px rgba(0, 0, 0, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      flex-direction: column;
+      will-change: transform, height, opacity;
+    }
+
+    .safari-titlebar {
+      height: 64px;
+      background: #f8fafc;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 20px;
+    }
+
+    .traffic-lights {
+      display: flex;
+      gap: 8px;
+    }
+
+    .tl-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+    }
+
+    .safari-address-bar {
+      flex: 1;
+      max-width: 580px;
+      height: 40px;
+      background: #ffffff;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #334155;
+    }
+
+    .safari-body {
+      flex: 1;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 16px;
+      padding: 40px;
+    }
+
+    /* SCENE 5: HASH-CHAIN AUDIT LOG */
+    #scene-audit {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-canvas);
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .audit-chain-container {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .audit-block {
+      width: 320px;
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 28px;
+      border: 2px solid #e4e4e7;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.06);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .audit-block.verified {
+      border-color: var(--accent-green);
+      box-shadow: 0 16px 45px rgba(52, 211, 153, 0.18);
+    }
+
+    .audit-badge {
+      padding: 12px 28px;
+      border-radius: 9999px;
+      background: var(--ui-black);
+      color: #ffffff;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* SCENE 6: PHYSICAL DESK & WALL */
+    #scene-physical-desk {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: #2a2826;
+      overflow: hidden;
+    }
+
+    .desk-wood-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 60% 30%, #52473e 0%, #29241e 100%);
+    }
+
+    .plant-shadow-layer {
+      position: absolute;
+      inset: -50px;
+      background: radial-gradient(ellipse at 20% 20%, rgba(0,0,0,0.55) 0%, transparent 60%);
+      opacity: 0.8;
+      filter: blur(35px);
+      pointer-events: none;
+    }
+
+    .laptop-mockup {
+      position: relative;
+      width: 1040px;
+      height: 680px;
+      background: #0f1012;
+      border-radius: 28px;
+      border: 3px solid #3f3f46;
+      padding: 24px;
+      box-shadow: 0 50px 120px rgba(0, 0, 0, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .laptop-screen {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-canvas);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Explosive Solid Black Screen Flood */
+    #black-flood {
+      position: absolute;
+      left: 720px;
+      top: 720px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--ui-black);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      opacity: 0;
+      z-index: 900;
+    }
+
+    /* Realistic Apple Pointer */
+    #sim-cursor {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 44px;
+      height: 44px;
+      pointer-events: none;
+      z-index: 1000;
+      transform-origin: 4px 4px;
+      filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.4));
+      will-change: transform;
+    }
+
+    /* Studio Scrubber HUD */
+    #studio-hud {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(18, 18, 20, 0.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 9999px;
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+    }
+
+    #scrub-slider {
+      width: 280px;
+      accent-color: var(--accent-copper);
+      cursor: pointer;
+    }
+
+    .hud-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .hud-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SVG FILTER SHADERS -->
+  <svg width="0" height="0" style="position: absolute;">
+    <defs>
+      <!-- Liquid Glass Chromatic Dispersion -->
+      <filter id="liquid-glass-refract" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.015" numOctaves="2" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="24" xChannelSelector="R" yChannelSelector="G" result="dispRed" />
+        <feColorMatrix in="dispRed" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="redOnly" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="20" xChannelSelector="R" yChannelSelector="G" result="dispGreen" />
+        <feColorMatrix in="dispGreen" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" result="greenOnly" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="16" xChannelSelector="R" yChannelSelector="G" result="dispBlue" />
+        <feColorMatrix in="dispBlue" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" result="blueOnly" />
+        <feBlend mode="screen" in="redOnly" in2="greenOnly" result="rgBlend" />
+        <feBlend mode="screen" in="rgBlend" in2="blueOnly" result="chromaticRefract" />
+        <feColorMatrix in="chromaticRefract" type="matrix" values="1.06 0 0 0 0.02  0 1.06 0 0 0.02  0 0 1.08 0 0.04  0 0 0 1 0" />
+      </filter>
+
+      <!-- Organic Goo with Crisp Composite -->
+      <filter id="liquid-goo" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="14" result="blur" />
+        <feColorMatrix in="blur" mode="matrix"
+          values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 28 -11" result="gooMembrane" />
+        <feComposite in="SourceGraphic" in2="gooMembrane" operator="atop" />
+      </filter>
+
+      <!-- 6-Blade Mechanical Iris Shutter ClipPath -->
+      <clipPath id="iris-clip">
+        <polygon id="iris-polygon" points="720,720 720,720 720,720 720,720 720,720 720,720" />
+      </clipPath>
+    </defs>
+  </svg>
+
+  <!-- 1440x1440 Master Viewport -->
+  <div id="viewport-container">
+    <div id="camera-stage">
+      <div class="canvas-vignette"></div>
+
+      <!-- 1. The Open: Brand Wordmark -->
+      <div id="scene-open">
+        <div class="brand-container" id="wordmark">
+          <span class="wm-letter" id="wm-0">f</span>
+          <span class="wm-letter" id="wm-1">r</span>
+          <span class="wm-letter" id="wm-2">i</span>
+          <span class="wm-letter" id="wm-3">d</span>
+          <span class="wm-letter" id="wm-4">a</span>
+          <span class="wm-letter" id="wm-5">y</span>
+          <span class="wm-letter" id="wm-6">.</span>
+        </div>
+        <div class="brand-subtext" id="subtext">on-device voice computer use.</div>
+      </div>
+
+      <!-- Seed Dot (morphs from period to notch) -->
+      <div id="seed-dot"></div>
+
+      <!-- 2. MacBook Notch & Voice Waveform -->
+      <div id="notch-housing">
+        <div class="notch-camera-dot"></div>
+        <div class="notch-waveform" id="notch-wave">
+          <div class="wave-bar" id="wb-0"></div>
+          <div class="wave-bar" id="wb-1"></div>
+          <div class="wave-bar" id="wb-2"></div>
+          <div class="wave-bar" id="wb-3"></div>
+          <div class="wave-bar" id="wb-4"></div>
+        </div>
+        <div class="notch-status-indicator" id="notch-status"></div>
+      </div>
+
+      <div id="voice-transcript">"open safari"</div>
+
+      <!-- 3D "fn" Push-to-Talk Keycap -->
+      <div id="fn-keycap">fn</div>
+
+      <!-- 3. Zero-Token Routing Probability Matrix -->
+      <div id="scene-routing-matrix">
+        <div class="routing-card highlight" id="rc-safari">
+          <span style="font-weight: 700; font-size: 20px;">Safari</span>
+          <span style="font-family: var(--font-mono); font-weight: 700; color: var(--accent-copper);">84%</span>
+        </div>
+        <div class="routing-card">
+          <span style="font-weight: 600; font-size: 18px;">Mail</span>
+          <span style="font-family: var(--font-mono); color: #71717a;">6%</span>
+        </div>
+        <div class="routing-card">
+          <span style="font-weight: 600; font-size: 18px;">Finder</span>
+          <span style="font-family: var(--font-mono); color: #71717a;">4%</span>
+        </div>
+        <div class="routing-card blocked">
+          <span>Terminal</span>
+          <span style="font-size: 12px; font-weight: 700; color: #ef4444;">POLICY FLOOR ✕</span>
+        </div>
+        <div class="routing-card blocked">
+          <span>Payments</span>
+          <span style="font-size: 12px; font-weight: 700; color: #ef4444;">POLICY FLOOR ✕</span>
+        </div>
+        <div class="routing-card blocked">
+          <span>Keychain</span>
+          <span style="font-size: 12px; font-weight: 700; color: #ef4444;">POLICY FLOOR ✕</span>
+        </div>
+      </div>
+
+      <!-- Confirmation Panel beneath Notch -->
+      <div id="confirm-panel">
+        <div style="font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-copper);">
+          Action Confirmation
+        </div>
+        <div style="font-size: 26px; font-weight: 700; letter-spacing: -0.02em;">
+          Open application "Safari"?
+        </div>
+        <div style="font-family: var(--font-mono); font-size: 14px; color: #a1a1aa; background: rgba(255,255,255,0.06); padding: 10px 16px; border-radius: 10px;">
+          source: local speech analyzer · model: laya-mlx (0 tokens)
+        </div>
+        <div class="panel-btn-row">
+          <button class="panel-btn deny">Deny</button>
+          <button class="panel-btn approve" id="btn-approve">Approve</button>
+        </div>
+      </div>
+
+      <!-- 4. macOS Desktop & Safari Execution -->
+      <div id="scene-desktop">
+        <div class="safari-window" id="safari-win">
+          <div class="safari-titlebar">
+            <div class="traffic-lights">
+              <div class="tl-dot" style="background: #ff5f56;"></div>
+              <div class="tl-dot" style="background: #ffbd2e;"></div>
+              <div class="tl-dot" style="background: #27c93f;"></div>
+            </div>
+            <div class="safari-address-bar" id="safari-url">
+              https://apple.com
+            </div>
+          </div>
+          <div class="safari-body">
+            <h1 style="font-size: 42px; font-weight: 800; color: #0f172a; letter-spacing: -0.03em;">Hello Apple.</h1>
+            <p style="font-size: 20px; color: #64748b; max-width: 600px; text-align: center;">
+              Zero cloud telemetry. Decided entirely on your local neural engine.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Cryptographic Audit Chain -->
+      <div id="scene-audit">
+        <div class="audit-badge" id="audit-badge">
+          <span style="color: var(--accent-green);">●</span> HASH-CHAINED AUDIT TRAIL VERIFIED
+        </div>
+        <div class="audit-chain-container">
+          <div class="audit-block verified">
+            <div style="color: #71717a;">BLOCK #014</div>
+            <div style="font-weight: 700; color: #000;">utterance: "open safari"</div>
+            <div style="color: var(--accent-copper);">tool: apps.open</div>
+            <div style="font-size: 11px; color: #a1a1aa; word-break: break-all;">sha256: 4f9e8a...</div>
+          </div>
+          <div style="font-size: 32px; color: var(--accent-green); font-weight: 800;">⟷</div>
+          <div class="audit-block verified">
+            <div style="color: #71717a;">BLOCK #015</div>
+            <div style="font-weight: 700; color: #000;">verdict: approved</div>
+            <div style="color: #3b82f6;">exit_code: 0</div>
+            <div style="font-size: 11px; color: #a1a1aa; word-break: break-all;">sha256: e82b1c...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Physical MacBook on Wooden Desk -->
+      <div id="scene-physical-desk">
+        <div class="desk-wood-bg"></div>
+        <div class="plant-shadow-layer" id="plant-shadow"></div>
+        <div class="laptop-mockup">
+          <div class="laptop-screen">
+            <div style="font-family: var(--font-display); font-size: 72px; font-weight: 800; color: var(--text-dark);">
+              friday.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Solid Black Flood Transition -->
+      <div id="black-flood"></div>
+
+      <!-- Simulated Driver Cursor -->
+      <svg id="sim-cursor" viewBox="0 0 24 24" fill="none">
+        <path d="M5.5 3.5 L5.5 19.5 L9.8 15.2 L14.5 22 L17.5 20 L12.8 13.5 L19 13.5 Z"
+              fill="#000000" stroke="#ffffff" stroke-width="1.6" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- STUDIO HUD CONTROLLER -->
+  <div id="studio-hud">
+    <button class="hud-btn" id="btn-play">Pause</button>
+    <input type="range" id="scrub-slider" min="0" max="29" step="0.01" value="0">
+    <span id="hud-time">0.00s / 29.00s</span>
+    <span id="hud-beat" style="color: var(--accent-copper); font-weight: 700;">Beat 1.0</span>
+  </div>
+
+  <script>
+    /* =========================================================================
+       FRIDAY MOTION GRAPHICS PURE-CODE MATHEMATICAL ENGINE
+       Every visual property is a pure, deterministic function of time `seek(t)`
+       ========================================================================= */
+
+    const BPM = 120.0;
+    const SECONDS_PER_BEAT = 60.0 / BPM; // 0.500s
+    const TOTAL_BEATS = 58;
+    const TOTAL_DURATION = 29.0;
+
+    /**
+     * Analytical closed-form damped harmonic oscillator step response.
+     */
+    function springStep(t, t0, from, to, omega = 18, zeta = 0.72) {
+      const dt = t - t0;
+      if (dt <= 0) return from;
+      const delta = to - from;
+
+      if (zeta < 1) {
+        const omegaD = omega * Math.sqrt(1 - zeta * zeta);
+        const decay = Math.exp(-zeta * omega * dt);
+        const sinTerm = (zeta / Math.sqrt(1 - zeta * zeta)) * Math.sin(omegaD * dt);
+        const cosTerm = Math.cos(omegaD * dt);
+        return from + delta * (1 - decay * (cosTerm + sinTerm));
+      } else {
+        return from + delta * (1 - Math.exp(-omega * dt) * (1 + omega * dt));
+      }
+    }
+
+    // Cache DOM Elements
+    const stage = document.getElementById('camera-stage');
+    const cursor = document.getElementById('sim-cursor');
+    const wordmark = document.getElementById('wordmark');
+    const subtext = document.getElementById('subtext');
+    const seedDot = document.getElementById('seed-dot');
+    const notch = document.getElementById('notch-housing');
+    const voiceTranscript = document.getElementById('voice-transcript');
+    const fnKeycap = document.getElementById('fn-keycap');
+    const sceneRouting = document.getElementById('scene-routing-matrix');
+    const confirmPanel = document.getElementById('confirm-panel');
+    const sceneDesktop = document.getElementById('scene-desktop');
+    const safariWin = document.getElementById('safari-win');
+    const sceneAudit = document.getElementById('scene-audit');
+    const sceneDesk = document.getElementById('scene-physical-desk');
+    const blackFlood = document.getElementById('black-flood');
+
+    /**
+     * MASTER TIMELINE SEEK FUNCTION: seek(t)
+     */
+    window.seek = function(t) {
+      const time = ((t % TOTAL_DURATION) + TOTAL_DURATION) % TOTAL_DURATION;
+      const beat = time / SECONDS_PER_BEAT + 1.0;
+
+      // 1. SCREEN STUDIO VIRTUAL CAMERA
+      let camX = 720, camY = 720, camZoom = 1.0;
+
+      if (beat >= 12.5 && beat < 24.0) {
+        // Zoom deep into the notch and decision panel on downbeat drop
+        camZoom = springStep(beat, 12.5, 1.0, 1.65, 12, 0.82);
+        camX = 720;
+        camY = springStep(beat, 12.5, 720, 280, 12, 0.82);
+      } else if (beat >= 24.0 && beat < 44.0) {
+        // Pull back smoothly to frame the full desktop window
+        camZoom = springStep(beat, 24.0, 1.65, 1.0, 14, 0.86);
+        camX = 720;
+        camY = 720;
+      }
+
+      const tx = (1440 / 2) - camX * camZoom;
+      const ty = (1440 / 2) - camY * camZoom;
+      stage.style.transform = `matrix(${camZoom}, 0, 0, ${camZoom}, ${tx.toFixed(2)}, ${ty.toFixed(2)})`;
+
+      // 2. SCENE 1: WORDMARK SQUEEZE (Beats 1 - 6)
+      if (beat < 7.0 || beat > 52.0) {
+        wordmark.style.display = 'flex';
+        subtext.style.display = 'block';
+
+        let squeeze = 0;
+        if (beat >= 2.5 && beat < 6.0) {
+          squeeze = springStep(beat, 2.5, 0, 1, 16, 0.78);
+        } else if (beat >= 52.0) {
+          squeeze = springStep(beat, 52.0, 1, 0, 18, 0.65);
+        }
+
+        const wdthAxis = 125 - squeeze * 65;
+        subtext.style.opacity = Math.max(0, 1 - squeeze * 2.5);
+
+        for (let i = 0; i < 6; i++) {
+          const letter = document.getElementById(`wm-${i}`);
+          const shift = (6 - i) * 64 * squeeze;
+          letter.style.transform = `translateX(${shift}px) scaleX(${1 - squeeze * 0.35})`;
+          letter.style.fontVariationSettings = `'wdth' ${wdthAxis.toFixed(0)}, 'wght' 800`;
+          letter.style.opacity = (squeeze > 0.92) ? 0 : 1;
+        }
+      } else {
+        wordmark.style.display = 'none';
+        subtext.style.display = 'none';
+      }
+
+      // 3. SEED DOT TO NOTCH TRANSITION (Beats 3.5 - 7.5)
+      if (beat >= 3.8 && beat < 7.0) {
+        seedDot.style.display = 'block';
+        const dotY = springStep(beat, 4.0, 720, 22, 16, 0.75);
+        seedDot.style.top = `${dotY}px`;
+      } else {
+        seedDot.style.display = 'none';
+      }
+
+      // 4. NOTCH & VOICE UI (Beats 6 - 25)
+      if (beat >= 5.5 && beat < 26.0) {
+        notch.style.display = 'flex';
+
+        // Notch expands horizontally
+        let notchW = 260;
+        if (beat >= 6.8 && beat < 12.0) {
+          notchW = springStep(beat, 6.8, 260, 440, 20, 0.72);
+        } else if (beat >= 12.0 && beat < 24.0) {
+          notchW = springStep(beat, 12.0, 440, 520, 18, 0.75);
+        }
+        notch.style.width = `${notchW}px`;
+
+        // Voice waveform dynamics
+        if (beat >= 7.0 && beat < 12.5) {
+          for (let w = 0; w < 5; w++) {
+            const h = 8 + 18 * Math.abs(Math.sin(time * 16 + w * 1.2));
+            const bar = document.getElementById(`wb-${w}`);
+            bar.style.height = `${h}px`;
+          }
+          // Transcript rises
+          const transY = springStep(beat, 7.5, 40, 0, 20, 0.68);
+          voiceTranscript.style.transform = `translateX(-50%) translateY(${transY}px)`;
+          voiceTranscript.style.opacity = '1';
+        } else {
+          voiceTranscript.style.opacity = '0';
+        }
+      } else {
+        notch.style.display = 'none';
+      }
+
+      // 5. FN KEYCAP PRESS (Beats 6.0 - 10.0)
+      if (beat >= 6.0 && beat < 11.0) {
+        fnKeycap.style.display = 'flex';
+        let keyY = springStep(beat, 6.2, 300, 0, 20, 0.7);
+        let keyScale = 1.0;
+        if (beat >= 7.0 && beat < 9.5) {
+          keyScale = 0.92; // Depressed
+        }
+        fnKeycap.style.transform = `translateX(-50%) translateY(${keyY}px) scale(${keyScale})`;
+      } else {
+        fnKeycap.style.display = 'none';
+      }
+
+      // 6. ZERO-TOKEN ROUTING PROBABILITIES (Beats 12.5 - 18.0)
+      if (beat >= 12.5 && beat < 18.5) {
+        sceneRouting.style.display = 'grid';
+        const unfold = springStep(beat, 13.0, 0, 1, 20, 0.75);
+        sceneRouting.style.transform = `translateX(-50%) scale(${unfold})`;
+        sceneRouting.style.opacity = `${unfold}`;
+      } else {
+        sceneRouting.style.display = 'none';
+      }
+
+      // 7. CONFIRMATION PANEL (Beats 17.5 - 25.0)
+      if (beat >= 17.5 && beat < 25.0) {
+        confirmPanel.style.display = 'flex';
+        const panelSlide = springStep(beat, 17.8, -100, 0, 20, 0.75);
+        confirmPanel.style.transform = `translateX(-50%) translateY(${panelSlide}%)`;
+      } else {
+        confirmPanel.style.display = 'none';
+      }
+
+      // 8. MACOS SAFARI WINDOW (Beats 24.5 - 36.5)
+      if (beat >= 24.5 && beat < 36.5) {
+        sceneDesktop.style.display = 'block';
+        const winH = springStep(beat, 25.0, 0, 720, 16, 0.85);
+        safariWin.style.height = `${winH}px`;
+      } else {
+        sceneDesktop.style.display = 'none';
+      }
+
+      // 9. AUDIT CHAIN (Beats 36.5 - 44.5)
+      if (beat >= 36.5 && beat < 44.5) {
+        sceneAudit.style.display = 'flex';
+        const chainScale = springStep(beat, 37.0, 0.5, 1.0, 18, 0.75);
+        sceneAudit.style.transform = `scale(${chainScale})`;
+      } else {
+        sceneAudit.style.display = 'none';
+      }
+
+      // 10. SOLID BLACK FLOOD (Beats 44.0 - 47.5)
+      if (beat >= 44.0 && beat < 47.5) {
+        const floodScale = springStep(beat, 44.0, 1, 380, 24, 0.8);
+        blackFlood.style.opacity = '1';
+        blackFlood.style.transform = `translate(-50%, -50%) scale(${floodScale})`;
+      } else {
+        blackFlood.style.opacity = '0';
+      }
+
+      // 11. PHYSICAL LAPTOP ON DESK (Beats 47.0 - 52.0)
+      if (beat >= 47.0 && beat < 52.5) {
+        sceneDesk.style.display = 'flex';
+      } else {
+        sceneDesk.style.display = 'none';
+      }
+
+      // 12. DRIVER CURSOR KINEMATICS
+      let cx = 1180, cy = 1200, cScale = 1.0;
+      if (beat < 4.0) {
+        cx = springStep(beat, 1.5, 1180, 720, 14, 0.8);
+        cy = springStep(beat, 1.5, 1200, 720, 14, 0.8);
+      } else if (beat < 18.0) {
+        cx = springStep(beat, 14.0, 720, 720, 18, 0.8);
+        cy = springStep(beat, 14.0, 720, 360, 18, 0.8);
+      } else if (beat < 25.0) {
+        // Move to [Approve] button
+        cx = springStep(beat, 19.5, 720, 880, 20, 0.75);
+        cy = springStep(beat, 19.5, 360, 340, 20, 0.75);
+        if (beat >= 22.0 && beat <= 22.5) cScale = 0.82; // Click dip
+      } else if (beat < 36.0) {
+        cx = springStep(beat, 26.0, 880, 720, 14, 0.8);
+        cy = springStep(beat, 26.0, 340, 210, 14, 0.8);
+      }
+      cursor.style.transform = `translate(${cx}px, ${cy}px) scale(${cScale})`;
+    };
+
+    // STUDIO CONTROLLER
+    let isPlaying = true;
+    let playbackSpeed = 1.0;
+    let lastTime = performance.now();
+    let currentT = 0;
+
+    const btnPlay = document.getElementById('btn-play');
+    const scrubSlider = document.getElementById('scrub-slider');
+    const hudTime = document.getElementById('hud-time');
+    const hudBeat = document.getElementById('hud-beat');
+
+    btnPlay.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      btnPlay.innerText = isPlaying ? 'Pause' : 'Play';
+    });
+
+    scrubSlider.addEventListener('input', (e) => {
+      isPlaying = false;
+      btnPlay.innerText = 'Play';
+      currentT = parseFloat(e.target.value);
+      window.seek(currentT);
+      updateHUD(currentT);
+    });
+
+    function updateHUD(t) {
+      hudTime.innerText = `${t.toFixed(2)}s / ${TOTAL_DURATION.toFixed(2)}s`;
+      const curBeat = (t / SECONDS_PER_BEAT) + 1.0;
+      hudBeat.innerText = `Beat ${curBeat.toFixed(1)}`;
+      scrubSlider.value = t;
+    }
+
+    function loop(now) {
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+      if (isPlaying) {
+        currentT = (currentT + dt * playbackSpeed) % TOTAL_DURATION;
+        window.seek(currentT);
+        updateHUD(currentT);
+      }
+      requestAnimationFrame(loop);
+    }
+
+    window.seek(0);
+    requestAnimationFrame((now) => {
+      lastTime = now;
+      loop(now);
+    });
+  </script>
+</body>
+</html>
