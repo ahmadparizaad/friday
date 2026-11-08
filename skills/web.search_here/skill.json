@@ -1,0 +1,25 @@
+{
+  "id": "web.search_here",
+  "version": "0.1.0",
+  "title": "Search the site you are on",
+  "triggers": [
+    "^search (?!(?:google|github|youtube|wikipedia|stack ?overflow)\\b.*\\bfor\\b)(?:for )?{query}$"
+  ],
+  "slots": {
+    "query": {"type": "text", "provenance": "utterance", "max_len": 200}
+  },
+  "action_class": "navigate",
+  "requires": {"binaries": [], "apps": [], "permissions": []},
+  "allowed_dirs": [],
+  "allowed_hosts": ["google.com", "github.com", "youtube.com", "wikipedia.org", "stackoverflow.com"],
+  "steps": [
+    {
+      "id": "search",
+      "backend": "browser",
+      "argv": ["search_here", "{query}"],
+      "dry_run": "search the site in the current tab for {query}"
+    }
+  ],
+  "postcondition": {"type": "output_matches", "value": "^searched (google|github|youtube|wikipedia|stackoverflow) for"},
+  "undo": "none"
+}
