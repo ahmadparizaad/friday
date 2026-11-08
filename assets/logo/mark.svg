@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="vignette" cx="50%" cy="-10%" r="90%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.05"/>
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- ground -->
+  <rect width="512" height="512" rx="112" fill="#1B1B1D"/>
+  <rect width="512" height="512" rx="112" fill="url(#vignette)"/>
+
+  <!-- notch -->
+  <rect x="106" y="150" width="300" height="92" rx="46" fill="#0B0B0C"/>
+
+  <!-- listening waveform -->
+  <g fill="#D97757">
+    <rect x="200" y="185" width="7" height="22" rx="3.5"/>
+    <rect x="219" y="176" width="7" height="40" rx="3.5"/>
+    <rect x="238" y="168" width="7" height="56" rx="3.5"/>
+    <rect x="257" y="179" width="7" height="34" rx="3.5"/>
+    <rect x="276" y="188" width="7" height="16" rx="3.5"/>
+  </g>
+
+  <!-- F monogram -->
+  <text x="256" y="416" text-anchor="middle" font-family="-apple-system, 'SF Pro Display', system-ui, sans-serif" font-size="168" font-weight="600" letter-spacing="-6" fill="#F4F3EF">F</text>
+</svg>

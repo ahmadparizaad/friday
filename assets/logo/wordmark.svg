@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="280" viewBox="0 0 960 280">
+  <rect width="960" height="280" fill="#FAF9F5"/>
+
+  <!-- icon -->
+  <rect x="72" y="66" width="148" height="148" rx="34" fill="#0B0B0C"/>
+  <g fill="#D97757">
+    <rect x="127" y="122" width="5" height="16" rx="2.5"/>
+    <rect x="137" y="115" width="5" height="30" rx="2.5"/>
+    <rect x="147" y="109" width="5" height="42" rx="2.5"/>
+    <rect x="157" y="117" width="5" height="26" rx="2.5"/>
+    <rect x="167" y="124" width="5" height="12" rx="2.5"/>
+  </g>
+
+  <!-- wordmark -->
+  <text x="252" y="168" font-family="-apple-system, 'SF Pro Display', system-ui, sans-serif" font-size="96" font-weight="600" letter-spacing="-3" fill="#141413">Friday</text>
+  <text x="254" y="196" font-family="-apple-system, 'SF Pro Display', system-ui, sans-serif" font-size="22" font-weight="500" letter-spacing="1.5" fill="#D97757">ON-DEVICE VOICE AGENT</text>
+</svg>
