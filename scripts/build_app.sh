@@ -95,11 +95,16 @@ sed \
     -e "s|{CORE_DIR}|core|g" \
     packaging/Info.plist > "$BUNDLE_PATH/Contents/Info.plist"
 
-step "Setting up code signing identity..."
-./scripts/create_signing_identity.sh || true
-
-IDENTITY="friday-dev"
+# FRIDAY_SIGN_IDENTITY signs with an existing certificate instead. macOS ties
+# Microphone/Accessibility grants to the signing certificate, so reusing the
+# one a previous build was signed with keeps those grants.
+IDENTITY="${FRIDAY_SIGN_IDENTITY:-friday-dev}"
+if [ -z "${FRIDAY_SIGN_IDENTITY:-}" ]; then
+    step "Setting up code signing identity..."
+    ./scripts/create_signing_identity.sh || true
+fi
 if ! security find-identity -v -p codesigning 2>/dev/null | grep -q "\"$IDENTITY\""; then
+    [ -n "${FRIDAY_SIGN_IDENTITY:-}" ] && fail "signing identity '$IDENTITY' not found"
     IDENTITY="-"
 fi
 
