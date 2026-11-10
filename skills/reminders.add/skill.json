@@ -1,0 +1,53 @@
+{
+  "id": "reminders.add",
+  "version": "0.2.0",
+  "title": "Add a reminder to Reminders",
+  "triggers": [
+    "^remind me to {task} (?P<when>(?:today|tomorrow) (?:at )?.+?)[.!?]*$",
+    "^remind me to {task} (?:at|by) (?P<when>.+?)[.!?]*$",
+    "^remind me to {task} (?P<when>today|tomorrow)[.!?]*$",
+    "^remind me at (?P<when>.+?) to (?P<task>.+?)[.!?]*$",
+    "^remind me to (?P<task>.+?)[.!?]*$"
+  ],
+  "slots": {
+    "task": {
+      "type": "text",
+      "provenance": "utterance",
+      "max_len": 120
+    },
+    "when": {
+      "type": "text",
+      "provenance": "utterance",
+      "max_len": 40,
+      "default": ""
+    }
+  },
+  "action_class": "mutate_local",
+  "requires": {
+    "binaries": [],
+    "apps": [
+      "Reminders"
+    ],
+    "permissions": [
+      "Automation: Reminders"
+    ]
+  },
+  "allowed_dirs": [],
+  "steps": [
+    {
+      "id": "add",
+      "backend": "applescript",
+      "script": "add_reminder.applescript",
+      "argv": [
+        "{task}",
+        "{when}"
+      ],
+      "dry_run": "add a reminder to Reminders: {task} at {when}"
+    }
+  ],
+  "postcondition": {
+    "type": "output_matches",
+    "value": "^reminder set:"
+  },
+  "undo": "delete the reminder in Reminders"
+}

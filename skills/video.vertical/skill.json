@@ -1,0 +1,26 @@
+{
+  "id": "video.vertical",
+  "version": "0.1.0",
+  "title": "Make the selected video vertical (9:16)",
+  "triggers": [
+    "^make (?:(?:this|the selected|the) )?video vertical[.!?]*$",
+    "^turn (?:(?:this|the selected|the) )?video into a reel[.!?]*$",
+    "^convert (?:(?:this|the selected|the) )?video for instagram[.!?]*$",
+    "^crop (?:(?:this|the selected|the) )?video to 9 ?(?:by|x|:) ?16[.!?]*$"
+  ],
+  "slots": {},
+  "action_class": "mutate_local",
+  "requires": {"binaries": ["ffmpeg"], "apps": [], "permissions": ["Automation: Finder"]},
+  "allowed_dirs": ["~/Downloads", "~/Documents", "~/Desktop", "~/Movies"],
+  "steps": [
+    {
+      "id": "make_vertical",
+      "backend": "applescript",
+      "script": "make_vertical.applescript",
+      "argv": ["selection"],
+      "dry_run": "encode the selected video to a new 1080x1920 -vertical.mp4 copy next to it (ffmpeg, in the background)"
+    }
+  ],
+  "postcondition": {"type": "output_matches", "value": "^started making .+ vertical"},
+  "undo": "delete the new -vertical.mp4 file; the original is unchanged"
+}

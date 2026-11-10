@@ -1,0 +1,38 @@
+{
+  "id": "files.tidy_downloads",
+  "version": "0.2.0",
+  "title": "Tidy the Downloads folder",
+  "triggers": [
+    "^(?:please )?(?:clean up|tidy(?: up)?|organi[sz]e|sort)(?: (?:my|the))? downloads(?: folder)?[.!?]*$"
+  ],
+  "slots": {},
+  "action_class": "mutate_local",
+  "requires": {
+    "binaries": [],
+    "apps": [
+      "Finder"
+    ],
+    "permissions": [
+      "Automation: Finder"
+    ]
+  },
+  "allowed_dirs": [
+    "~/Downloads"
+  ],
+  "steps": [
+    {
+      "id": "tidy",
+      "backend": "applescript",
+      "script": "tidy_downloads.applescript",
+      "argv": [
+        "run"
+      ],
+      "dry_run": "move loose files in ~/Downloads into Images, Documents, Videos, Audio, Archives and Installers subfolders by extension; nothing is deleted or overwritten"
+    }
+  ],
+  "postcondition": {
+    "type": "output_matches",
+    "value": "^moved \\d+ files into folders(, skipped \\d+ that could not be moved)?$"
+  },
+  "undo": "Files were only moved into subfolders of Downloads (Images, Documents, Videos, Audio, Archives, Installers) and can be dragged back to the Downloads folder; nothing was deleted."
+}

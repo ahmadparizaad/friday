@@ -1,0 +1,23 @@
+{
+  "id": "pdf.merge_selected",
+  "version": "0.1.0",
+  "title": "Merge the selected PDFs",
+  "triggers": [
+    "^(?:merge|combine|join)(?: together)? (?:these|the|my|all)? ?(?:selected )?(?:pdfs?|pdf files|files)(?: (?:into|to|as) one(?: pdf)?)?[.!?]*$"
+  ],
+  "slots": {},
+  "action_class": "mutate_local",
+  "requires": {"binaries": [], "apps": ["Finder"], "permissions": ["Automation: Finder"]},
+  "allowed_dirs": ["~/Downloads", "~/Documents", "~/Desktop"],
+  "steps": [
+    {
+      "id": "merge",
+      "backend": "applescript",
+      "script": "merge_pdfs.applescript",
+      "argv": ["selection"],
+      "dry_run": "merge the PDFs selected in Finder, in file name order, into a new Merged PDF next to the first one"
+    }
+  ],
+  "postcondition": {"type": "output_matches", "value": "^merged \\d+ PDFs into .+\\.pdf$"},
+  "undo": "delete the new Merged PDF; the originals are unchanged"
+}

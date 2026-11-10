@@ -1,0 +1,31 @@
+{
+  "id": "mail.draft_attachment",
+  "version": "0.1.0",
+  "title": "Draft an email with a file attached",
+  "triggers": [
+    "^(?:email|mail|send) the (?:file|document) {file} to (?P<to>[^.!?]+)[.!?]*$"
+  ],
+  "slots": {
+    "file": {"type": "file", "provenance": "resolver", "max_len": 1024},
+    "to": {"type": "contact", "provenance": "resolver", "max_len": 254}
+  },
+  "action_class": "mutate_local",
+  "requires": {
+    "binaries": [],
+    "apps": ["Mail"],
+    "permissions": ["Automation: Mail", "Automation: Contacts"]
+  },
+  "allowed_dirs": ["~/Downloads", "~/Documents", "~/Desktop"],
+  "steps": [
+    {
+      "id": "draft",
+      "backend": "applescript",
+      "script": "draft_mail.applescript",
+      "argv": ["{to}", "{file}"],
+      "action_class": "mutate_local",
+      "dry_run": "open a new Mail draft to {to} with {file} attached (not sent)"
+    }
+  ],
+  "postcondition": {"type": "output_matches", "value": "^draft ready for .+ with .+"},
+  "undo": "close the draft without saving"
+}

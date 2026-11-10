@@ -1,0 +1,33 @@
+{
+  "id": "windows.side_by_side",
+  "version": "0.1.0",
+  "title": "Put two apps side by side",
+  "triggers": [
+    "^put {left} and {right} side by side(?<![.!?])[.!?]*$",
+    "^show {left} and {right} side by side(?<![.!?])[.!?]*$",
+    "^split ?screen (?:with )?{left} and {right}(?<![.!?])[.!?]*$",
+    "^{left} on the left(?: side)? and {right} on the right(?: side)?(?<![.!?])[.!?]*$"
+  ],
+  "slots": {
+    "left": {"type": "app", "provenance": "resolver", "max_len": 100},
+    "right": {"type": "app", "provenance": "resolver", "max_len": 100}
+  },
+  "action_class": "navigate",
+  "requires": {
+    "binaries": [],
+    "apps": [],
+    "permissions": ["Accessibility", "Automation: System Events"]
+  },
+  "allowed_dirs": [],
+  "steps": [
+    {
+      "id": "arrange",
+      "backend": "applescript",
+      "script": "side_by_side.applescript",
+      "argv": ["{left}", "{right}"],
+      "dry_run": "put {left} on the left half and {right} on the right half of the screen"
+    }
+  ],
+  "postcondition": {"type": "output_matches", "value": "^arranged .+ left and .+ right$"},
+  "undo": "move the windows back by hand"
+}

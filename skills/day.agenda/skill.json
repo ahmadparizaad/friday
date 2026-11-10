@@ -1,0 +1,31 @@
+{
+  "id": "day.agenda",
+  "version": "0.1.0",
+  "title": "Read today's agenda",
+  "triggers": [
+    "^what(?:['’]s| is) on (?:my )?(?:calendar|agenda|schedule) today[.!?]*$",
+    "^what(?:['’]s| is) on today[.!?]*$",
+    "^what(?:['’]s| is) my day(?: (?:look|looks))? like(?: today)?[.!?]*$",
+    "^what do i have(?: on)? today[.!?]*$",
+    "^read (?:my |today['’]?s )?agenda(?: for today)?[.!?]*$"
+  ],
+  "slots": {},
+  "action_class": "read",
+  "requires": {
+    "binaries": [],
+    "apps": ["Calendar", "Reminders"],
+    "permissions": ["Automation: Calendar", "Automation: Reminders"]
+  },
+  "allowed_dirs": [],
+  "steps": [
+    {
+      "id": "agenda",
+      "backend": "applescript",
+      "script": "agenda.applescript",
+      "argv": ["today"],
+      "dry_run": "read today's calendar events and the reminders due today (read only)"
+    }
+  ],
+  "postcondition": {"type": "output_matches", "value": "^(You have|Your calendar is clear)"},
+  "undo": "none"
+}

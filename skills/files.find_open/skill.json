@@ -1,0 +1,29 @@
+{
+  "id": "files.find_open",
+  "version": "0.1.0",
+  "title": "Open a document by name",
+  "triggers": [
+    "^(?:open|find)(?: (?:the|my|a))? (?:file|document)(?: (?:called|named))? (?P<file>.+?)(?: and open(?: it)?)?[.!?]*$"
+  ],
+  "slots": {
+    "file": {"type": "file", "provenance": "resolver", "max_len": 1024}
+  },
+  "action_class": "navigate",
+  "requires": {
+    "binaries": [],
+    "apps": ["Finder"],
+    "permissions": ["Automation: Finder"]
+  },
+  "allowed_dirs": ["~/Downloads", "~/Documents", "~/Desktop"],
+  "steps": [
+    {
+      "id": "open",
+      "backend": "applescript",
+      "script": "open_document.applescript",
+      "argv": ["{file}"],
+      "dry_run": "open the document {file} in its default app"
+    }
+  ],
+  "postcondition": {"type": "output_matches", "value": "^opened .+"},
+  "undo": "close the document"
+}

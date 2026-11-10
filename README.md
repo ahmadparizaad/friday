@@ -52,6 +52,21 @@ skills/<id>/
 - **Enabling pins a hash of the skill.** If its files change afterwards, it
   stops running until you enable it again.
 
+### Included skills
+
+| Skill | Say | Does |
+|---|---|---|
+| `files.tidy_downloads` | "clean up my downloads" | Sorts loose files in Downloads into Images, Documents, Videos, Audio, Archives, Installers |
+| `files.find_open` | "open the file budget" | Finds one document with Spotlight and opens it; refuses apps and scripts |
+| `mail.draft_attachment` | "email the file report to Sarah" | Opens a Mail draft with the file attached; never sends |
+| `day.agenda` | "what's on my calendar today" | Reads today's events and due reminders aloud |
+| `reminders.add` | "remind me to call the bank at 5 pm" | Adds a reminder, with or without a time |
+| `focus.meeting` | "I'm going into a meeting" | Mutes, quits chat apps, opens the meeting link, turns on a Focus via an optional Shortcut |
+| `windows.side_by_side` | "put Safari and Notes side by side" | Tiles two apps left and right |
+| `pdf.merge_selected` | "merge these PDFs" | Merges the PDFs selected in Finder into a new file |
+| `images.web_ready` | "make these images web ready" | Saves resized JPEG copies without location data |
+| `video.vertical` | "make this video vertical" | Makes a 1080×1920 copy of the selected video with ffmpeg |
+
 See [`skills/web.search_here`](skills/web.search_here) for a complete example
 and [`docs/PLAN-SKILLS.md`](docs/PLAN-SKILLS.md) for the full design.
 
@@ -68,8 +83,8 @@ and [`docs/PLAN-SKILLS.md`](docs/PLAN-SKILLS.md) for the full design.
 
 | | |
 |---|---|
-| Built | Skill format, validator, sandboxed backends, runtime with dry-run and postconditions, digest pinning, the CLI above, one example skill |
-| Next | Ten skills for everyday work on the Mac |
+| Built | Skill format, validator, sandboxed backends, runtime with dry-run and postconditions, digest pinning, optional slots, a check for missing tools, the CLI above |
+| Built | Ten everyday skills (below), each with tests; first runs against the real apps still to come |
 | Next | A skill-authoring guide written for coding agents, so you can hand it to your agent and get a working skill |
 | Later | Publishing and installing community skills |
 

@@ -1,0 +1,31 @@
+{
+  "id": "images.web_ready",
+  "version": "0.1.0",
+  "title": "Make the selected images web ready",
+  "triggers": [
+    "^(?:make|get) (?:these|those|the selected|the|my)? ?(?:images?|photos?|pictures?|pics?) web[- ]?ready[.!?]*$",
+    "^(?:shrink|compress|downsize) (?:these|those|the selected|the|my)? ?(?:images?|photos?|pictures?|pics?)[.!?]*$",
+    "^(?:make|resize|shrink) (?:these|those|the selected|the) (?:images?|photos?|pictures?|pics?) (?:smaller|for the web)[.!?]*$",
+    "^(?:convert|turn) (?:these|those|the selected|the) (?:images?|photos?|pictures?|pics?) (?:in)?to (?:a )?jpe?g[.!?]*$"
+  ],
+  "slots": {},
+  "action_class": "mutate_local",
+  "requires": {
+    "binaries": [],
+    "apps": ["Finder"],
+    "permissions": ["Automation: Finder"]
+  },
+  "allowed_dirs": ["~/Downloads", "~/Documents", "~/Desktop", "~/Pictures"],
+  "steps": [
+    {
+      "id": "make_web_ready",
+      "backend": "applescript",
+      "script": "web_ready.applescript",
+      "argv": ["selection"],
+      "action_class": "mutate_local",
+      "dry_run": "make the selected images web ready: scale each to at most 1600 px on its longest side and save a -web.jpg copy beside it (originals stay as they are)"
+    }
+  ],
+  "postcondition": {"type": "output_matches", "value": "^made \\d+ web-ready images?"},
+  "undo": "delete the new -web.jpg files; originals are unchanged"
+}

@@ -1,0 +1,41 @@
+{
+  "id": "focus.meeting",
+  "version": "0.2.0",
+  "title": "Meeting mode",
+  "triggers": [
+    "^(?:i['\u2019]?m|i am) (?:going (?:in)?to|heading (?:in)?to|in|going to) (?:a|my|the) meeting[.!?]*$",
+    "^(?:(?:start|turn on|enable|begin) )?meeting mode[.!?]*$",
+    "^join my meeting[.!?]*$"
+  ],
+  "slots": {},
+  "action_class": "mutate_local",
+  "requires": {
+    "binaries": [],
+    "apps": [
+      "Calendar"
+    ],
+    "permissions": [
+      "Automation: Calendar",
+      "Automation: System Events",
+      "Automation: Shortcuts Events",
+      "Automation: Slack, WhatsApp, Discord, Messages, Telegram (asked once per app the first time it is quit)"
+    ]
+  },
+  "allowed_dirs": [],
+  "steps": [
+    {
+      "id": "start",
+      "backend": "applescript",
+      "script": "meeting_mode.applescript",
+      "argv": [
+        "start"
+      ],
+      "dry_run": "mute the sound, quit running chat apps (Slack, WhatsApp, Discord, Messages, Telegram), and open a meeting link from a Calendar event happening now or starting within 15 minutes, and turn on Do Not Disturb if a Shortcut named \"Friday Focus On\" exists"
+    }
+  ],
+  "postcondition": {
+    "type": "output_matches",
+    "value": "^meeting mode on: "
+  },
+  "undo": "unmute the sound and reopen the chat apps"
+}
