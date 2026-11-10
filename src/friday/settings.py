@@ -3,8 +3,33 @@
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
+
+from friday.audit import DEFAULT_RETENTION_DAYS, MAX_RETENTION_DAYS, MIN_RETENTION_DAYS
+from friday.policy import Autonomy
+
+DEFAULT_AUTONOMY = Autonomy.CAUTIOUS.value
+
+
+def _coerce_autonomy(value) -> str:
+    """A level from the settings file, or the default. An unreadable value
+    falls back to cautious, never to the permissive end."""
+    try:
+        return Autonomy(value).value
+    except ValueError:
+        return DEFAULT_AUTONOMY
+
+
+def _coerce_retention_days(value) -> int:
+    """Retention in whole days, clamped to the audit log's bounds (M4)."""
+    if isinstance(value, bool):
+        return DEFAULT_RETENTION_DAYS
+    try:
+        days = int(value)
+    except (TypeError, ValueError):
+        return DEFAULT_RETENTION_DAYS
+    return max(MIN_RETENTION_DAYS, min(MAX_RETENTION_DAYS, days))
 
 
 @dataclass
@@ -15,6 +40,8 @@ class Settings:
     auto_hide_when_idle: bool = False
     confirm_timeout: float = 120.0
     reduce_motion: bool = False
+    autonomy: str = DEFAULT_AUTONOMY
+    audit_retention_days: int = DEFAULT_RETENTION_DAYS
 
     def to_dict(self) -> dict:
         return {
@@ -24,6 +51,8 @@ class Settings:
             "auto_hide_when_idle": self.auto_hide_when_idle,
             "confirm_timeout": self.confirm_timeout,
             "reduce_motion": self.reduce_motion,
+            "autonomy": self.autonomy,
+            "audit_retention_days": self.audit_retention_days,
         }
 
     @classmethod
@@ -35,6 +64,10 @@ class Settings:
             auto_hide_when_idle=data.get("auto_hide_when_idle", False),
             confirm_timeout=data.get("confirm_timeout", 120.0),
             reduce_motion=data.get("reduce_motion", False),
+            autonomy=_coerce_autonomy(data.get("autonomy", DEFAULT_AUTONOMY)),
+            audit_retention_days=_coerce_retention_days(
+                data.get("audit_retention_days", DEFAULT_RETENTION_DAYS)
+            ),
         )
 
     def save(self) -> None:

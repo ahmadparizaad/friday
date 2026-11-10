@@ -454,9 +454,7 @@ def main(argv=None) -> int:
 
         atexit.register(_stop_ui, ui_process)
 
-        if supervisor is not None:
-            supervisor.send_settings(settings.to_dict())
-        elif ui_pipes is not None:
+        if ui_pipes is not None:
             write, _, _ = ui_pipes
             write(json.dumps({"t": "settings", "settings": settings.to_dict()}) + "\n")
 
@@ -491,9 +489,6 @@ def main(argv=None) -> int:
         autonomy=autonomy,
         log_path=args.log,
     )
-    if supervisor is not None:
-        supervisor.set_autonomy_callback(agent.set_autonomy)
-        supervisor.set_retention_callback(agent.set_retention)
     if ui_pipes is not None:
         # Voice mode replaces the stdin loop entirely.
         from friday.voice import VoiceLoop

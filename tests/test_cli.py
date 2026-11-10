@@ -131,3 +131,28 @@ def test_enable_unknown_skill_is_a_clean_error(skills_cwd, monkeypatch, capsys):
     monkeypatch.setattr(store_mod, "ENABLED_PATH", skills_cwd / "enabled.json")
     assert _skill("enable", "nope") == 1
     assert "unknown skill" in capsys.readouterr().err
+
+
+# --- main() startup: the path the app runs ------------------------------------------
+
+
+class _FakeRouter:
+    def route(self, transcript):
+        raise AssertionError("no input is given, so nothing should be routed")
+
+
+def test_main_starts_and_exits_cleanly_on_eof(monkeypatch, tmp_path):
+    """Regression: the app's core crashed at startup because cli.py read
+    Settings fields that settings.py did not define."""
+    import friday.cli as cli
+    import friday.router as router_mod
+    from friday.settings import Settings
+
+    monkeypatch.setattr(router_mod, "Router", _FakeRouter)
+    monkeypatch.setattr(Settings, "_path", staticmethod(lambda: tmp_path / "settings.json"))
+
+    def eof(_prompt=""):
+        raise EOFError
+
+    monkeypatch.setattr(builtins, "input", eof)
+    assert cli.main(["--log", str(tmp_path / "audit.jsonl")]) == 0

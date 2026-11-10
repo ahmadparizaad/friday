@@ -38,6 +38,26 @@ struct NotchGeometry {
     }
 
     var hasNotch: Bool { notch != nil }
+
+    /// The first display with a notch, or nil (external display only,
+    /// or clamshell). Callers fall back to the main screen.
+    static func findNotchScreen() -> NSScreen? {
+        NSScreen.screens.first { NotchGeometry(screen: $0).hasNotch }
+    }
+
+    /// Where the strip sits: the notch itself, or a notch-sized slot at the
+    /// top centre of the screen when there is none.
+    var stripFrame: NSRect {
+        if let notch { return notch }
+        let size = NSSize(width: 156, height: 28)
+        let frame = screen.frame
+        return NSRect(
+            x: frame.midX - size.width / 2,
+            y: frame.maxY - size.height,
+            width: size.width,
+            height: size.height
+        )
+    }
 }
 
 enum AgentState: String {
@@ -55,13 +75,16 @@ enum AgentState: String {
 }
 
 /// The ambient strip. Non-activating: showing status must never steal
-/// focus from the app the user is driving.
+/// focus from the app the user is driving. Clicking it opens Settings;
+/// nothing approvable ever renders here.
 final class NotchStrip {
     private let panel: NSPanel
     private let label: NSTextField
+    private let onClick: () -> Void
 
-    init(geometry: NotchGeometry) {
-        let frame = geometry.notch ?? NSRect(x: 0, y: 0, width: 156, height: 28)
+    init(geometry: NotchGeometry, onClick: @escaping () -> Void = {}) {
+        self.onClick = onClick
+        let frame = geometry.stripFrame
 
         panel = NSPanel(
             contentRect: frame,
@@ -75,7 +98,7 @@ final class NotchStrip {
         panel.isOpaque = false
         panel.hasShadow = false
         panel.isMovable = false
-        panel.ignoresMouseEvents = true
+        panel.ignoresMouseEvents = false
         panel.collectionBehavior = [.canJoinAllSpaces, .stationary, .ignoresCycle]
 
         label = NSTextField(labelWithString: AgentState.idle.label)
@@ -86,10 +109,25 @@ final class NotchStrip {
 
         let content = NSView(frame: NSRect(origin: .zero, size: frame.size))
         content.addSubview(label)
+        content.addGestureRecognizer(
+            NSClickGestureRecognizer(target: self, action: #selector(clicked))
+        )
         panel.contentView = content
     }
 
     func show() { panel.orderFrontRegardless() }
+
+    func hide() { panel.orderOut(nil) }
+
+    /// Follow the notch when displays are attached, detached or rearranged.
+    func reposition(geometry: NotchGeometry) {
+        let frame = geometry.stripFrame
+        panel.setFrame(frame, display: true)
+        label.frame = NSRect(origin: .zero, size: frame.size)
+        panel.contentView?.frame = NSRect(origin: .zero, size: frame.size)
+    }
+
+    @objc private func clicked() { onClick() }
 
     func render(_ state: AgentState) {
         label.stringValue = state.label
