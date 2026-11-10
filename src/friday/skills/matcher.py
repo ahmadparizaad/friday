@@ -4,7 +4,7 @@ Deterministic, no model. Each skill declares trigger patterns with
 `{slot}` placeholders; the matcher tries each enabled skill's triggers
 in order and the first whose pattern matches AND whose slots all fill
 wins. A slot fills from its regex group, its enum default, or a
-resolver (file, app, date). A slot that cannot fill fails that trigger;
+resolver (file, app, contact). A slot that cannot fill fails that trigger;
 a skill whose triggers all fail is not matched; nothing matches → the
 caller refuses (today) or hands off to the planner (later).
 
@@ -20,6 +20,7 @@ from typing import Mapping
 from friday.skills.manifest import Skill
 from friday.skills.resolvers import (
     AppResolver,
+    ContactResolver,
     DateResolver,
     FileResolver,
     ResolverError,
@@ -33,12 +34,13 @@ class MatchError(Exception):
 class Resolvers:
     """The resolver bundle. Injectable for tests."""
 
-    def __init__(self, file=None, app=None, date=None):
+    def __init__(self, file=None, app=None, date=None, contact=None):
         self.file = file or FileResolver(
             ("~/Downloads", "~/Documents", "~/Desktop")
         )
         self.app = app or AppResolver(_installed_apps())
         self.date = date or DateResolver()
+        self.contact = contact or ContactResolver()
 
 
 def _installed_apps() -> tuple[str, ...]:
@@ -82,6 +84,9 @@ def _fill(
     slot = skill.slots[name]
     if captured is not None and captured.strip():
         value = captured.strip()
+        if slot.type in ("file", "app", "contact"):
+            # speech-to-text ends sentences with "."; it is not part of a name
+            value = value.rstrip(".!?,;: ")
         if slot.type == "enum":
             if value.lower() in [v.lower() for v in slot.values]:
                 return _canonical(value, slot.values)
@@ -96,11 +101,16 @@ def _fill(
                 return resolvers.app.resolve(value)
             except ResolverError:
                 return None
-        if slot.type == "duration":
-            return value
-        return value  # text, contact
-    # Not captured by the pattern.
-    if slot.type == "enum" and slot.default:
+        if slot.type == "contact":
+            # a name becomes exactly one address, or the trigger fails
+            try:
+                return resolvers.contact.resolve(value)
+            except ResolverError:
+                return None
+        return value  # text, duration
+    # Not captured by the pattern: an optional slot takes its default
+    # (the manifest only allows defaults on text, enum and duration).
+    if slot.default is not None:
         return slot.default
     return None
 

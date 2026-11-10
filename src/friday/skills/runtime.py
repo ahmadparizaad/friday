@@ -62,6 +62,36 @@ class SkillResult:
     postcondition_ok: bool = False
 
 
+# The app runs with launchd's minimal PATH, so Homebrew is searched too.
+_BINARY_DIRS = ("/opt/homebrew/bin", "/usr/local/bin")
+
+
+def _which(binary: str) -> str | None:
+    found = shutil.which(binary)
+    if found:
+        return found
+    for directory in _BINARY_DIRS:
+        candidate = Path(directory) / binary
+        if candidate.is_file() and os.access(candidate, os.X_OK):
+            return str(candidate)
+    return None
+
+
+def _installed_apps() -> tuple[str, ...]:
+    from friday.registry import known_apps
+
+    return known_apps()
+
+
+def missing_requirements(skill: Skill, *, which=_which, apps=None) -> list[str]:
+    """The binaries and apps in `requires` that are not installed, in
+    manifest order. Permissions cannot be checked ahead; macOS asks."""
+    installed = {a.lower() for a in (apps if apps is not None else _installed_apps())}
+    missing = [b for b in skill.requires.binaries if which(b) is None]
+    missing += [a for a in skill.requires.apps if a.lower() not in installed]
+    return missing
+
+
 def default_backends(skill: Skill | None = None) -> dict[str, Backend]:
     return {
         "cli": CliBackend(),

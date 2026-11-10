@@ -170,13 +170,22 @@ def _build(data: dict) -> Skill:
                     f"'values' list"
                 )
             values = tuple(str(v) for v in raw_values)
+        default = spec.get("default")
+        if default is not None and (
+            slot_type in ("file", "app", "contact") or not isinstance(default, str)
+        ):
+            # a default would hand a step a value no resolver vouched for
+            raise ManifestError(
+                f"{where}: slot {name!r} of type {slot_type!r} cannot have a "
+                f"default (only text, enum and duration slots can)"
+            )
         slots[name] = Slot(
             name=name,
             type=slot_type,
             provenance=provenance,
             max_len=max_len,
             values=values,
-            default=spec.get("default"),
+            default=default,
             allow_leading_dash=bool(spec.get("allow_leading_dash", False)),
         )
 

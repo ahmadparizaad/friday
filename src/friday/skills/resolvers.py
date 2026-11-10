@@ -86,12 +86,21 @@ class AppResolver:
         self._apps = apps
 
     def resolve(self, text: str) -> str:
-        from friday.apps import resolve_app
+        """A slot holds a bare name ("Safari"), not a request ("open
+        Safari"), so it is compared whole against each app's spoken
+        forms. Unknown, ambiguous ("chrome" with two Chromes) or several
+        names all refuse."""
+        from friday.apps import ALIASES, _spoken_forms
 
-        resolved = resolve_app(text, self._apps)
-        if resolved is None:
-            raise ResolverError(f"no installed application named {text!r}")
-        return resolved
+        name = re.sub(r"^(?:the|my)\s+", "", text.strip().lower())
+        found = {app for app in self._apps if name and name in _spoken_forms(app)}
+        alias = ALIASES.get(name)
+        if alias is not None:
+            found |= {app for app in self._apps if app.lower() == alias.lower()}
+        if len(found) != 1:
+            kind = "ambiguous app name" if found else "no installed application named"
+            raise ResolverError(f"{kind} {text!r}")
+        return found.pop()
 
 
 class DateResolver:

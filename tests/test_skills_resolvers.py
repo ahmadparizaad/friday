@@ -154,3 +154,28 @@ def test_file_resolver_returns_the_resolved_path(tmp_path):
     link.symlink_to(real)
     resolver = FileResolver((str(ok),), binary=_fake_mdfind(tmp_path, link))
     assert resolver.resolve("link") == str(real.resolve())
+
+
+# --- bare app names (a skill slot captures "Safari", not "open Safari") ----------
+
+_APPS = ("Safari", "Notes", "Google Chrome", "Google Chrome Canary", "Visual Studio Code")
+
+
+@pytest.mark.parametrize(
+    "spoken, app",
+    [("Safari", "Safari"), ("notes", "Notes"), ("the Notes", "Notes"),
+     ("google chrome", "Google Chrome"), ("visual studio code", "Visual Studio Code"),
+     ("code", "Visual Studio Code")],
+)
+def test_app_resolver_takes_a_bare_name(spoken, app):
+    from friday.skills.resolvers import AppResolver
+
+    assert AppResolver(_APPS).resolve(spoken) == app
+
+
+@pytest.mark.parametrize("spoken", ["chrome", "photoshop", "safari and notes", ""])
+def test_app_resolver_refuses_ambiguous_unknown_or_several(spoken):
+    from friday.skills.resolvers import AppResolver, ResolverError
+
+    with pytest.raises(ResolverError):
+        AppResolver(_APPS).resolve(spoken)

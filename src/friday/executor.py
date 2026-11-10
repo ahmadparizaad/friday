@@ -154,13 +154,17 @@ def _browser_tool(tool_name: str, arguments: dict) -> Result:
 
 
 def _run_skill(arguments: dict) -> Result:
-    from friday.skills.runtime import run_skill
-    from friday.skills.store import get_enabled
+    from friday.skills import runtime, store
 
-    skill = get_enabled(arguments["skill_id"])
+    skill = store.get_enabled(arguments["skill_id"])
     if skill is None:  # re-checked: the pin may have changed since validation
         raise ExecutionError(f"skill {arguments['skill_id']!r} is no longer enabled")
-    result = run_skill(skill, arguments["slots"])
+    missing = runtime.missing_requirements(skill)
+    if missing:
+        tools = [m for m in missing if m in skill.requires.binaries]
+        hint = f"; install with: brew install {' '.join(tools)}" if tools else ""
+        raise ExecutionError(f"{skill.title} needs {', '.join(missing)}, not installed{hint}")
+    result = runtime.run_skill(skill, arguments["slots"])
     if not result.ok:
         raise ExecutionError(result.output or f"skill {skill.id} failed")
     return Result(ok=True, output=result.output)
