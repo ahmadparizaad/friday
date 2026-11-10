@@ -59,7 +59,7 @@ and [`docs/PLAN-SKILLS.md`](docs/PLAN-SKILLS.md) for the full design.
 .venv/bin/python -m friday.cli skill new my.skill --backend applescript   # scaffold
 .venv/bin/python -m friday.cli skill validate skills/my.skill
 .venv/bin/python -m friday.cli skill test skills/my.skill
-.venv/bin/python -m friday.cli skill dry-run my.skill --slots name=value  # what it would do
+.venv/bin/python -m friday.cli skill dry-run skills/my.skill --slots name=value  # what it would do
 .venv/bin/python -m friday.cli skill enable my.skill
 .venv/bin/python -m friday.cli skill list
 ```
