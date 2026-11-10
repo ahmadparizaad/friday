@@ -105,3 +105,20 @@ def test_questions_cover_every_tool():
     for name, question in questions.items():
         assert question["type"] == "noul"
         assert question["instructions"] == REGISTRY[name].description
+
+
+# --- runner-up candidates ----------------------------------------------------------
+
+
+def test_route_carries_the_next_two_candidates_in_score_order():
+    route = parse_prediction(
+        a_prediction(navigate_tab=0.83, use_app=0.6, open_url=0.3, speak_time=0.2)
+    )
+    assert route == Route("navigate_tab", 0.83, alternatives=(
+        Route("use_app", 0.6), Route("open_url", 0.3),
+    ))
+
+
+def test_candidates_below_the_refuse_floor_are_not_offered():
+    route = parse_prediction(a_prediction(use_app=0.9, speak_time=REFUSE_BELOW / 2))
+    assert route.alternatives == ()

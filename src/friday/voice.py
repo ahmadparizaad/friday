@@ -69,7 +69,11 @@ class VoiceLoop:
     def run(self) -> None:
         """Handle transcripts until the channel closes."""
         while True:
-            line = self._read(self._timeout)
+            # Block until the user speaks. The channel returns None both on
+            # timeout and on close, so a timeout here would read as "closed"
+            # and end the loop after the first quiet spell. self._timeout is
+            # for confirmations only.
+            line = self._read(None)
             if line is None:
                 return
 

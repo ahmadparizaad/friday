@@ -78,13 +78,18 @@ class Agent:
         except RouteError as exc:
             return self._finish(record, "refused", f"could not route: {exc}")
 
+        try:
+            chosen, arguments = _first_that_fits(route, transcript)
+        except SlotError as exc:
+            record["tool"] = route.tool
+            record["act_probability"] = route.confidence
+            return self._finish(record, "refused", f"could not understand: {exc}")
+
+        if chosen.tool != route.tool:
+            record["fallback_from"] = route.tool
+        route = chosen
         record["tool"] = route.tool
         record["act_probability"] = route.confidence
-
-        try:
-            arguments = extract(route.tool, transcript)
-        except SlotError as exc:
-            return self._finish(record, "refused", f"could not understand: {exc}")
 
         record["arguments"] = arguments
 
@@ -118,3 +123,31 @@ class Agent:
         record["message"] = message
         self._audit.append(record)
         return Outcome(status=status, message=message)
+
+
+def _first_that_fits(route: Route, transcript: str) -> tuple[Route, dict]:
+    """The top route if its slot grammar accepts the transcript, else the
+    first runner-up whose grammar does.
+
+    With 16 tools the router sometimes ranks a neighbour first ("open
+    safari" scores highest for navigate_tab). The grammars are deterministic
+    and strict, so a runner-up that fully parses the request is better
+    evidence than a winner that cannot. The chosen candidate keeps its own
+    confidence, so the policy gate judges it exactly as if it had won.
+    Only candidates that take arguments are eligible: a tool with no
+    arguments (speak_time, lock_screen, ...) accepts any transcript, so its
+    "fit" would prove nothing. When nothing fits, the top route's error is
+    the one reported.
+    """
+    try:
+        return route, extract(route.tool, transcript)
+    except SlotError as top_error:
+        for candidate in route.alternatives:
+            if not REGISTRY[candidate.tool].arguments:
+                continue
+            try:
+                return candidate, extract(candidate.tool, transcript)
+            except SlotError:
+                continue
+        raise top_error
+

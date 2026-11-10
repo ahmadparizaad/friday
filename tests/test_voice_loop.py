@@ -245,3 +245,17 @@ def test_on_outcome_receives_the_utterance_and_result():
     )
     loop.run()
     assert seen == [("open safari", "executed")]
+
+
+def test_run_waits_for_speech_without_a_timeout():
+    """Regression: run() read transcripts with the confirm timeout, and the
+    channel returns None on timeout as well as on close, so two minutes of
+    silence shut the core down and later speech went nowhere."""
+    timeouts = []
+
+    def read(timeout):
+        timeouts.append(timeout)
+        return None  # the channel closes
+
+    VoiceLoop(agent=FakeAgent(), write=lambda line: None, read=read).run()
+    assert timeouts == [None]

@@ -33,6 +33,13 @@ class RouteError(Exception):
 class Route:
     tool: str
     confidence: float
+    # The next-best tools above REFUSE_BELOW, best first. The agent tries
+    # them only when this route's own slot grammar rejects the utterance.
+    alternatives: tuple[Route, ...] = ()
+
+
+# How many runner-up candidates a route carries.
+MAX_ALTERNATIVES = 2
 
 
 # Below this, no tool is a good enough match to act on.
@@ -112,7 +119,15 @@ def parse_prediction(prediction: dict) -> Route:
             f"below {REFUSE_BELOW}"
         )
 
-    return Route(tool=tool, confidence=confidence)
+    runners_up = sorted(
+        (name for name in scores if name != tool and scores[name] >= REFUSE_BELOW),
+        key=lambda name: -scores[name],
+    )[:MAX_ALTERNATIVES]
+    return Route(
+        tool=tool,
+        confidence=confidence,
+        alternatives=tuple(Route(name, scores[name]) for name in runners_up),
+    )
 
 
 class Router:
