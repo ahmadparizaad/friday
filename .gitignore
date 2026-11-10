@@ -8,3 +8,6 @@
 node_modules/
 __pycache__/
 .pytest_cache/
+
+# app bundle output
+build/
