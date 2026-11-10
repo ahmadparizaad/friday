@@ -1,15 +1,77 @@
 # Friday
 
-A fully on-device macOS voice computer-use agent. Clean-room design, inspired by
+An open-source, on-device agent for the Mac that you configure with **skills**.
+You say what you want; Friday picks the right skill and carries out its steps on
+your machine, with no large LLM and no paid API. Clean-room design, inspired by
 [macbrow](https://github.com/timpratim/macbrow) (MIT): architectural pattern
 only, no code reused.
 
-**Status: 16 tools across apps, system, browser and skills; terminal interface
-plus a voice loop that takes transcripts from a separate UI app.**
+**Status: skills runtime and 16 built-in tools (apps, system, browser, tabs);
+voice through a notch app, or a terminal interface.**
 
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md): the design and its reasoning
 - [`docs/M1-MEASUREMENTS.md`](docs/M1-MEASUREMENTS.md): what the model actually
   does on this machine, including the parts that contradicted the design
+
+---
+
+## Skills: how Friday is meant to be used
+
+Every specialised job is a **skill**: organising a mail inbox, editing a video
+in a set style, driving a particular app or website through a fixed workflow.
+You ask Friday by voice or text; it picks the skill and follows its steps.
+
+- **Small model, on your device.** Friday decides with
+  [laya-mlx](https://github.com/mizorewww/laya-mlx), a decision model that
+  picks among fixed options instead of generating text. It needs no big LLM
+  and no API key, and routes a command in about 80 ms on an Apple Silicon Mac
+  ([`docs/ROUTING.md`](docs/ROUTING.md)).
+- **Anyone can write one.** A skill is a folder with a JSON manifest, tests and
+  example phrases. Any coding agent (Claude Code, Codex, opencode) can produce
+  one, and the validator decides whether it is allowed to run.
+- **Shareable.** Skills are self-contained, so you can publish yours and
+  install someone else's.
+
+### What a skill is
+
+```
+skills/<id>/
+  skill.json       manifest: triggers, slots, action class, steps, postcondition, undo
+  tests/           the skill's own tests
+  examples.jsonl   phrases that should reach this skill
+```
+
+- **Steps are typed backend calls, never shell strings:** `cli` (allow-listed
+  binaries only), `applescript` (a script inside the skill's own folder), `url`,
+  `shortcuts` and `browser`. A slot value always becomes exactly one argument.
+- **Slots declare where their value comes from:** your own words, a resolver
+  (a file or contact Friday looked up), or a fixed list.
+- **Every step has a dry-run line**, and the whole skill declares the highest
+  action class it can reach, so the same policy gate applies: destructive and
+  outward-facing skills always confirm.
+- **Enabling pins a hash of the skill.** If its files change afterwards, it
+  stops running until you enable it again.
+
+See [`skills/web.search_here`](skills/web.search_here) for a complete example
+and [`docs/PLAN-SKILLS.md`](docs/PLAN-SKILLS.md) for the full design.
+
+```bash
+.venv/bin/python -m friday.cli skill new my.skill --backend applescript   # scaffold
+.venv/bin/python -m friday.cli skill validate skills/my.skill
+.venv/bin/python -m friday.cli skill test skills/my.skill
+.venv/bin/python -m friday.cli skill dry-run my.skill --slots name=value  # what it would do
+.venv/bin/python -m friday.cli skill enable my.skill
+.venv/bin/python -m friday.cli skill list
+```
+
+### Status and roadmap
+
+| | |
+|---|---|
+| Built | Skill format, validator, sandboxed backends, runtime with dry-run and postconditions, digest pinning, the CLI above, one example skill |
+| Next | Ten skills for everyday work on the Mac |
+| Next | A skill-authoring guide written for coding agents, so you can hand it to your agent and get a working skill |
+| Later | Publishing and installing community skills |
 
 ---
 
